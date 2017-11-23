@@ -25,10 +25,14 @@ plt.ylabel('STDP (%)')
 
 
 #%%
-def neuron(Vrest, Vt, taum, time, deltat, gex, gin, Eex, Ein):
+def neuron(Vrest, Vt, taum, time, deltat, gex_0, gin_0, Eex, Ein):
     count = 1
     V = np.zeros(len(time))
     V[0] = Vrest
+    g_ex = np.zeros( len(t) )
+    g_ex[0]= gex_0
+    g_in = np.zeros( len(t) )
+    g_in[0]= gin_0
     for t in range(len(time)-1):
         V[t+1] = V[t] + deltat/taum*((-V[t] + Vrest) +gex*(Eex-V[t])+gin*(Ein-V[t]))
         if V[t+1] > Vt:
@@ -42,8 +46,8 @@ Vrest = -70
 Eex = 0
 Ein = -70
 Vt = -54
-gex = 0.5
-gin = 0.5
+gex_0 = 0.015
+gin_0 = 0.05
 deltat = 0.1
 
 time = np.arange(0.0, 1000, deltat)
