@@ -25,7 +25,32 @@ plt.ylabel('STDP (%)')
 
 
 #%%
+def neuron(Vrest, Vt, taum, time, deltat, gex, gin, Eex, Ein):
+    count = 1
+    V = np.zeros(len(time))
+    V[0] = Vrest
+    for t in range(len(time)-1):
+        V[t+1] = V[t] + deltat/taum*((-V[t] + Vrest) +gex*(Eex-V[t])+gin*(Ein-V[t]))
+        if V[t+1] > Vt:
+            V[t+1] = -60
+            count +=1
+    print 'The firing rate is :'+str(count*1000/time[-1])+' spike/s'   # firing rate ~ 1/T*1000/time[-1]
+    return V
 
+taum = 20
+Vrest = -70
+Eex = 0
+Ein = -70
+Vt = -54
+gex = 0.5
+gin = 0.5
+deltat = 0.1
+
+time = np.arange(0.0, 1000, deltat)
+
+plt.plot(time, neuron(Vrest, Vt, taum, time, deltat, gex, gin, Eex, Ein))
+plt.xlabel('Time (ms)')
+plt.ylabel('Membrane Potential (mV)')
 #%%
 
 import numpy as np
