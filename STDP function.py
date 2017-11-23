@@ -25,3 +25,24 @@ plt.ylabel('STDP (%)')
 
 
 #%%
+
+#%%
+
+import numpy as np
+
+spikes = []
+num_cells = 200
+delay = 10000
+frequency = 10
+num_spikes_per_cell = delay/1000*frequency + delay/100000*frequency 
+time = np.arange(0.0, delay, deltat)
+deltat = 0.1
+
+def ismember(B,A):
+    B_unique_sorted, B_idx = np.unique(B, return_index=True)
+    B_in_A_bool = np.in1d(B_unique_sorted, A, assume_unique=True)
+    return B_in_A_bool
+
+for i in range(num_cells):
+    isi = np.random.poisson(frequency, num_spikes_per_cell).astype(float)
+    spikes.append(ismember(time,np.cumsum(isi*10,dtype=float)))
