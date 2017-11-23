@@ -40,7 +40,7 @@ def neuron(Vrest, Vt, taum, tau_ex, tau_in, time, deltat, gex_0, gin_0, Eex, Ein
         if V[t+1] > Vt:
             V[t+1] = -60
             count +=1
-    print 'The firing rate is :'+str(count*1000/time[-1])+' spike/s'   # firing rate ~ 1/T*1000/time[-1]
+    print ('The firing rate is :'+str(count*1000/time[-1])+' spike/s')   # firing rate ~ 1/T*1000/time[-1]
     return V
 
 taum = 20
@@ -56,7 +56,7 @@ deltat = 0.1
 
 time = np.arange(0.0, 1000, deltat)
 
-plt.plot(time, neuron(Vrest, Vt, taum, time, deltat, gex, gin, Eex, Ein))
+plt.plot(time, neuron(Vrest, Vt, taum,tau_ex, tau_in, time, deltat, gex_0, gin_0, Eex, Ein))
 plt.xlabel('Time (ms)')
 plt.ylabel('Membrane Potential (mV)')
 #%%
