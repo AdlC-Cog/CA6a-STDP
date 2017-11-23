@@ -36,7 +36,7 @@ def neuron(Vrest, Vt, taum, tau_ex, tau_in, time, deltat, gex_0, gin_0, Eex, Ein
     for t in range(len(time)-1):
         g_ex[t+1]= g_ex[t] + deltat*(-g_ex[t]/tau_ex)
         g_in[t+1]= g_in[t] + deltat*(-g_in[t]/tau_in)
-        V[t+1] = V[t] + deltat/taum*((-V[t] + Vrest) +gex[t]*(Eex-V[t])+gin[t]*(Ein-V[t]))
+        V[t+1] = V[t] + deltat/taum*((-V[t] + Vrest) +g_ex[t]*(Eex-V[t])+g_in[t]*(Ein-V[t]))
         if V[t+1] > Vt:
             V[t+1] = -60
             count +=1
