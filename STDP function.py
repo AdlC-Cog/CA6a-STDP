@@ -39,11 +39,12 @@ def spike_trains(num_cells,frequency,delay):
     
 
 #%%
-def neuron(Vrest, Vt, taum, tau_ex, tau_in, time, deltat, gex_0, gin_0, g_in_bar, Eex, Ein):
+def neuron(Vrest, Vt, taum, tau_ex, tau_in, tau_minus, tau_plus, time, deltat, gex_0, gin_0, g_in_bar, M, Pa, Eex, Ein):
     
     #generate spike trains for inhibitory and excitatory neuron populations with function spike_trains
+    N = 1000 #nb of excitatory synapses
     inhibitory_spike_trains = spike_trains(200,10,delay)
-    excitatory_spike_trains = spike_trains(1000,10,delay)
+    excitatory_spike_trains = spike_trains(N,10,delay)
     
     count = 1
     V = np.zeros(len(time))
@@ -52,6 +53,12 @@ def neuron(Vrest, Vt, taum, tau_ex, tau_in, time, deltat, gex_0, gin_0, g_in_bar
     g_ex[0]= gex_0
     g_in = np.zeros(len(time))
     g_in[0]= gin_0
+    M = np.zeros(len(time))
+    M[0] = 0
+    Pa
+        
+        
+    
     
     for t in range(len(time)-1):
         
