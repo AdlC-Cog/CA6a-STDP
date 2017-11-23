@@ -76,6 +76,18 @@ def ismember(B,A):
     B_in_A_bool = np.in1d(B_unique_sorted, A, assume_unique=True)
     return B_in_A_bool
 
-for i in range(num_cells):
-    isi = np.random.poisson(frequency, num_spikes_per_cell).astype(float)
-    spikes.append(ismember(time,np.cumsum(isi*10,dtype=float)))
+def spike_trains(num_cells,frequency,delay):
+    spikes = []
+    deltat = 0.1
+    num_spikes_per_cell = delay/1000*frequency + delay/100000*frequency 
+    time = np.arange(0.0, delay, deltat)
+    
+    
+    for i in range(num_cells):
+        isi = np.random.poisson(frequency, num_spikes_per_cell).astype(float)
+        spikes.append(ismember(time,np.cumsum(isi*10,dtype=float)))
+    return spikes
+    
+inhibitory_spike_trains = spike_trains(200,10,delay)
+excitatory_spike_trains = spike_trains(1000,10,delay)
+
