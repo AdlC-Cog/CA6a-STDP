@@ -37,13 +37,15 @@ def spike_trains2(num_cells,frequency,delay):
         for spike in isi:
             spikes[spike] = spikes.get(spike, []) + [i]
     return spikes
+
+
 #%%
 def neuron(Vrest, Vt, taum, tau_ex, tau_in, tau_neg, tau_pos, time, deltat, g_max, g_in_bar, Eex, Ein, A_neg, A_pos):
     
     #generate spike trains for inhibitory and excitatory neuron populations with function spike_trains
     N = 1000
     inhibitory_spike_trains = spike_trains2(200,10,delay)
-    excitatory_spike_trains = spike_trains2(N,10,delay)
+    excitatory_spike_trains = spike_trains2(N,20,delay)
     
     count = 1
     
@@ -54,7 +56,7 @@ def neuron(Vrest, Vt, taum, tau_ex, tau_in, tau_neg, tau_pos, time, deltat, g_ma
     
     g_in = g_in_bar
     
-    ga = np.ones(N)*g_max
+    ga = np.ones(N)*g_max/3
     
     M = 0.0
     P = np.zeros(N)
@@ -70,7 +72,8 @@ def neuron(Vrest, Vt, taum, tau_ex, tau_in, tau_neg, tau_pos, time, deltat, g_ma
         g_in += g_in_bar*len(inhibitory_spike_trains.get(t+1,[]))
         
         g_ex += sum(ga[excitatory_spike_trains.get(t+1,[])])
-                
+        P[excitatory_spike_trains.get(t+1,[])] += A_pos
+        
         V[t+1] = V[t] + deltat/taum*((-V[t] + Vrest) +g_ex*(Eex-V[t])+g_in*(Ein-V[t]))
         
         ga[excitatory_spike_trains.get(t+1,[])] += M*g_max
@@ -78,10 +81,11 @@ def neuron(Vrest, Vt, taum, tau_ex, tau_in, tau_neg, tau_pos, time, deltat, g_ma
         
         if V[t+1] > Vt:
             V[t+1] = -60
+            V[t] = 0
             count +=1
             M += A_neg
             ga += P*g_max
-        ga[np.greater(ga,g_max)] = g_max
+            ga[np.greater(ga,g_max)] = g_max
             
     print ('The firing rate is :'+str(count*1000/time[-1])+' spike/s')   # firing rate ~ 1/T*1000/time[-1]
     
@@ -111,7 +115,7 @@ plt.ylabel('Membrane Potential (mV)')
 
 #%%
 
-
-
 ga = np.sort(ga)/g_max
 plt.plot(range(len(ga)), ga)
+
+
