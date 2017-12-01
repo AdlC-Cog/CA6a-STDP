@@ -1,0 +1,107 @@
+#%% 
+
+
+   
+def spike_trains(num_cells,frequency,delay,deltat):
+    spikes = {}
+    dt = 1/1000*deltat
+    for i in range(num_cells):
+        spike_train = np.less(np.random.rand(delay),frequency*dt)
+        for t in np.array(range(delay))[spike_train]:
+            spikes[t] = spikes.get(t, []) + [i]
+    return spikes
+
+
+#%%
+def neuron(Vrest, Vt, taum, tau_ex, tau_in, tau_neg, tau_pos, time, deltat, g_max, g_in_bar, Eex, Ein, A_neg, A_pos):
+    
+    #generate spike trains for inhibitory and excitatory neuron populations with function spike_trains
+    
+    N = 1000
+    inhibitory_spike_trains = spike_trains(200,10,len(time),deltat)
+    excitatory_spike_trains = spike_trains(N,40,len(time),deltat)
+    
+    #generate variables and their initial condition
+    
+    count = 0               #counter for post-cynaptic spikes
+    V= Vrest                #rest potential
+    g_ex = 0                #excitatory conductance
+    g_in = 0                #inhibitory conductance
+    ga = np.ones(N)*g_max   #synaptic excitatory conductance ga (a=[0,N-1]) 
+    M = 0.0                 #function decreasing synaptic strength
+    P = np.zeros(N)         #function Pa (a=[0,N-1]) which increases synaptic strength
+    
+    #loop across all t-1 points
+    for t in range(len(time)-1):
+        
+        #Euler approximation of differential equations g_ex, g_in, M and P
+        
+        
+        
+        #Modify inhibitory conductance according to the number of inhibtory pre-synaptic neurons spiking 
+        
+        g_in += g_in_bar*len(inhibitory_spike_trains.get(t+1,[]))
+        
+        #Modify excitatory conductance according to the which excitatory pre-synaptic neuron is spiking 
+        
+        g_ex += sum(ga[excitatory_spike_trains.get(t+1,[])])
+        
+        #Modify Pa if pre-synaptic neuron a is spiking 
+        P[excitatory_spike_trains.get(t+1,[])] += A_pos
+        
+        #Modify ga if pre-synaptic neuron a is spiking and if ga<0, it's value is reset to 0
+        ga[excitatory_spike_trains.get(t+1,[])] += M*g_max
+        ga[np.less(ga,0)] = 0 
+        
+        
+        #Euler approximation of differential equation V
+        
+        V = V + deltat/taum*((-V + Vrest) +g_ex*(Eex-V)+g_in*(Ein-V))
+        g_ex = g_ex + deltat*(-g_ex/tau_ex) 
+        g_in = g_in + deltat*(-g_in/tau_in) 
+        M = M + deltat*(-M/tau_neg) 
+        P = P + deltat*(-P/tau_pos)
+        
+        #check when the post-synaptic neuron is spiking
+        if V > Vt:
+                        
+            V = -60         #reset membran potential to -60mV
+            M += A_neg      #Modify M when post-cynaptic neuron is firing 
+            
+            #Modify excitatory synaptic weight when post-synpatic is firing
+            ga += P*g_max   
+            ga[np.greater(ga,g_max)] = g_max
+            
+            #count the firing rate at the end of the simulation
+            if t > len(time)*0.9:
+                count +=1
+    print ('The firing rate is :'+str(count*10000/time[-1])+' spike/s')
+    
+    return V, ga
+
+total_time = 100000 #ms
+deltat = 0.01 #ms
+tau_ex = tau_in = 5 #ms
+tau_pos = tau_neg = taum =20 #ms
+Vrest = -70 #mV
+Vt = -54 #mV
+Eex = 0 #mV
+Ein = -70 #mV
+g_max = 0.015 
+g_in_bar = 0.05
+A_pos = 0.005 
+A_neg = -1.05*A_pos
+
+time = np.arange(0.0, total_time , deltat)
+
+V, ga = neuron(Vrest, Vt, taum, tau_ex, tau_in, tau_neg, tau_pos, time, deltat, g_max, g_in_bar, Eex, Ein, A_neg, A_pos)
+
+#plt.plot(time, V)
+#plt.xlabel('Time (ms)')
+#plt.ylabel('Membrane Potential (mV)')
+
+ga = np.sort(ga)/g_max*100
+#%%
+plt.plot(range(len(ga)), ga)
+#%%
+plt.hist(ga,bins=20,normed=1)
